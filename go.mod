@@ -14,6 +14,7 @@ require (
 	github.com/go-chi/chi v1.5.4
 	github.com/gorilla/sessions v1.2.1
 	github.com/gosimple/slug v1.12.0
+	github.com/jbowes/semver v0.1.3
 	github.com/lib/pq v1.10.4
 	github.com/mattn/go-shellwords v1.0.12
 	github.com/moistari/rls v0.2.6

@@ -3,6 +3,8 @@ package scheduler
 import (
 	"fmt"
 
+	"github.com/rs/zerolog"
+
 	"github.com/autobrr/autobrr/internal/logger"
 
 	"github.com/robfig/cron/v3"
@@ -23,6 +25,17 @@ type service struct {
 	jobs map[string]cron.EntryID
 }
 
+type GenericJob struct {
+	Name string
+	Log  zerolog.Logger
+
+	callback func()
+}
+
+func (j *GenericJob) Run() {
+	j.callback()
+}
+
 func NewService(log logger.Logger) Service {
 	return &service{
 		log: log,
@@ -37,6 +50,17 @@ func (s *service) Start() {
 	s.log.Debug().Msg("scheduler.Start")
 
 	s.cron.Start()
+
+	s.AddJob(&GenericJob{
+		"check-updates",
+		s.log.With().Logger(),
+		func() {
+			fmt.Println("check-updates")
+		},
+	},
+		"2 */6 * * *",
+		"")
+
 	return
 }
 

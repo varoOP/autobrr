@@ -191,3 +191,7 @@ func (c *AppConfig) DynamicReload(log logger.Logger) {
 
 	return
 }
+
+func (c *AppConfig) CheckUpdates() {
+
+}
