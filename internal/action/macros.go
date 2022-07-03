@@ -19,6 +19,7 @@ type Macro struct {
 	Resolution      string
 	Source          string
 	HDR             string
+	FilterName      string
 	Season          int
 	Episode         int
 	Year            int
@@ -42,6 +43,7 @@ func NewMacro(release domain.Release) Macro {
 		Resolution:      release.Resolution,
 		Source:          release.Source,
 		HDR:             strings.Join(release.HDR, ", "),
+		FilterName:      release.FilterName,
 		Season:          release.Season,
 		Episode:         release.Episode,
 		Year:            currentTime.Year(),
