@@ -276,6 +276,20 @@ func (s *service) CheckFilter(f domain.Filter, release *domain.Release) (bool, e
 			}
 		}
 
+		if release.GetImageRequired {
+			s.log.Debug().Msgf("filter.Service.CheckFilter: (%v) GetImage required", f.Name)
+			image_ok, err := s.GetImage(f, release)
+			if err != nil {
+				s.log.Error().Stack().Err(err).Msgf("filter.Service.CheckFilter: (%v) Get image error", f.Name)
+				return false, err
+			}
+
+			if !image_ok {
+				s.log.Trace().Msgf("filter.Service.CheckFilter: (%v) get image wont work", f.Name)
+				return false, nil
+			}
+		}
+
 		// run external script
 		if f.ExternalScriptEnabled && f.ExternalScriptCmd != "" {
 			exitCode, err := s.execCmd(release, f.ExternalScriptCmd, f.ExternalScriptArgs)
@@ -373,6 +387,23 @@ func (s *service) AdditionalSizeCheck(f domain.Filter, release *domain.Release) 
 	if !match {
 		s.log.Debug().Msgf("filter.Service.AdditionalSizeCheck: (%v) filter did not match after additional size check, trying next", f.Name)
 		return false, nil
+	}
+
+	return true, nil
+}
+
+func (s *service) GetImage(f domain.Filter, release *domain.Release) (bool, error) {
+	if release.Indexer == "ggn" {
+		s.log.Trace().Msgf("filter.Service.GetImage: (%v) preparing to check via api", f.Name)
+		torrentInfo, err := s.apiService.GetTorrentByID(release.Indexer, release.TorrentID)
+		if err != nil || torrentInfo == nil {
+			s.log.Error().Stack().Err(err).Msgf("filter.Service.GetImage: (%v) could not get torrent info from api: '%v' from: %v", f.Name, release.TorrentID, release.Indexer)
+			return false, err
+		}
+
+		s.log.Debug().Msgf("filter.Service.GetImage: (%v) got torrent info from api: %+v", f.Name, torrentInfo)
+
+		release.Image = torrentInfo.Image
 	}
 
 	return true, nil

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/autobrr/autobrr/internal/domain"
@@ -215,10 +216,13 @@ func (c *client) GetTorrentByID(torrentID string) (*domain.TorrentBasic, error) 
 		return nil, errors.New("bad status: %v", r.Status)
 	}
 
+	image_url := strings.Replace(r.Response.Group.WikiImage, "[inlineurl]", "", 1)
+
 	t := &domain.TorrentBasic{
 		Id:       strconv.Itoa(r.Response.Torrent.Id),
 		InfoHash: r.Response.Torrent.InfoHash,
 		Size:     strconv.FormatUint(r.Response.Torrent.Size, 10),
+		Image:    image_url,
 	}
 
 	return t, nil

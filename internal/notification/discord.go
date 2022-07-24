@@ -24,14 +24,20 @@ type DiscordMessage struct {
 type DiscordEmbeds struct {
 	Title       string                `json:"title"`
 	Description string                `json:"description"`
+	URL         string                `json:"url"`
 	Color       int                   `json:"color"`
 	Fields      []DiscordEmbedsFields `json:"fields,omitempty"`
+	Image       []DiscordEmbedsImage  `json:"image"`
 	Timestamp   time.Time             `json:"timestamp"`
 }
 type DiscordEmbedsFields struct {
 	Name   string `json:"name"`
 	Value  string `json:"value"`
 	Inline bool   `json:"inline,omitempty"`
+}
+
+type DiscordEmbedsImage struct {
+	Url string `json:"url"`
 }
 
 type EmbedColors int
@@ -154,68 +160,40 @@ func (a *discordSender) buildEmbed(event domain.NotificationEvent, payload domai
 
 	var fields []DiscordEmbedsFields
 
-	if payload.Status != "" {
+	if payload.Category != "" {
 		f := DiscordEmbedsFields{
-			Name:   "Status",
-			Value:  payload.Status.String(),
-			Inline: true,
-		}
-		fields = append(fields, f)
-	}
-	if payload.Indexer != "" {
-		f := DiscordEmbedsFields{
-			Name:   "Indexer",
-			Value:  payload.Indexer,
-			Inline: true,
-		}
-		fields = append(fields, f)
-	}
-	if payload.Filter != "" {
-		f := DiscordEmbedsFields{
-			Name:   "Filter",
-			Value:  payload.Filter,
-			Inline: true,
-		}
-		fields = append(fields, f)
-	}
-	if payload.Action != "" {
-		f := DiscordEmbedsFields{
-			Name:   "Action",
-			Value:  payload.Action,
-			Inline: true,
-		}
-		fields = append(fields, f)
-	}
-	if payload.ActionType != "" {
-		f := DiscordEmbedsFields{
-			Name:   "Action type",
-			Value:  string(payload.ActionType),
-			Inline: true,
-		}
-		fields = append(fields, f)
-	}
-	if payload.ActionClient != "" {
-		f := DiscordEmbedsFields{
-			Name:   "Action client",
-			Value:  payload.ActionClient,
-			Inline: true,
-		}
-		fields = append(fields, f)
-	}
-	if len(payload.Rejections) > 0 {
-		f := DiscordEmbedsFields{
-			Name:   "Reasons",
-			Value:  fmt.Sprintf("```\n%v\n```", strings.Join(payload.Rejections, ", ")),
+			Name:   "Platform",
+			Value:  payload.Category,
 			Inline: false,
 		}
 		fields = append(fields, f)
 	}
 
+	if len(payload.Tags) > 0 {
+		f := DiscordEmbedsFields{
+			Name:   "Tags",
+			Value:  fmt.Sprintf("```\n%v\n```", strings.Join(payload.Tags, ", ")),
+			Inline: false,
+		}
+		fields = append(fields, f)
+	}
+
+	var image []DiscordEmbedsImage
+
+	if payload.Image != "" {
+		i := DiscordEmbedsImage{
+			Url: payload.Image,
+		}
+		image = append(image, i)
+	}
+
 	embed := DiscordEmbeds{
 		Title:       payload.ReleaseName,
-		Description: "New release!",
+		Description: "New English Translated VN release!",
+		URL:         payload.URL,
 		Color:       int(color),
 		Fields:      fields,
+		Image:       image,
 		Timestamp:   time.Now(),
 	}
 

@@ -48,6 +48,10 @@ type NotificationPayload struct {
 	ReleaseName    string
 	Filter         string
 	Indexer        string
+	Category       string
+	Tags           []string
+	URL            string
+	Image          string
 	InfoHash       string
 	Size           uint64
 	Status         ReleasePushStatus

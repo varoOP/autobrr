@@ -286,6 +286,10 @@ func (f Filter) CheckFilter(r *Release) ([]string, bool) {
 		return r.Rejections, false
 	}
 
+	if !decideImage(r.Indexer, r) {
+		r.addRejectionF("indexer is %v. It is not ggn.", r.Indexer)
+	}
+
 	return nil, true
 }
 
@@ -629,4 +633,17 @@ func checkFreeleechPercent(announcePercent int, filterPercent string) bool {
 	}
 
 	return false
+}
+
+func decideImage(s string, r *Release) bool {
+
+	if s == "ggn" {
+		r.GetImageRequired = true
+
+		return true
+	} else {
+		r.GetImageRequired = false
+	}
+
+	return true
 }

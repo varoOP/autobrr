@@ -82,6 +82,8 @@ type Release struct {
 	Other                       []string              `json:"-"`
 	RawCookie                   string                `json:"-"`
 	AdditionalSizeCheckRequired bool                  `json:"-"`
+	GetImageRequired            bool                  `json:"-"`
+	Image                       string                `json:"image"`
 	FilterID                    int                   `json:"-"`
 	Filter                      *Filter               `json:"-"`
 	ActionStatus                []ReleaseActionStatus `json:"action_status"`
