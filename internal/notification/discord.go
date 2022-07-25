@@ -27,7 +27,7 @@ type DiscordEmbeds struct {
 	URL         string                `json:"url"`
 	Color       int                   `json:"color"`
 	Fields      []DiscordEmbedsFields `json:"fields,omitempty"`
-	Image       []DiscordEmbedsImage  `json:"image"`
+	Image       *EmbedImage           `json:"image,omitempty"`
 	Timestamp   time.Time             `json:"timestamp"`
 }
 type DiscordEmbedsFields struct {
@@ -36,8 +36,8 @@ type DiscordEmbedsFields struct {
 	Inline bool   `json:"inline,omitempty"`
 }
 
-type DiscordEmbedsImage struct {
-	Url string `json:"url"`
+type EmbedImage struct {
+	URL string `json:"url,omitempty"`
 }
 
 type EmbedColors int
@@ -108,6 +108,7 @@ func (a *discordSender) Send(event domain.NotificationEvent, payload domain.Noti
 	// discord responds with 204, Notifiarr with 204 so lets take all 200 as ok
 	if res.StatusCode >= 300 {
 		a.log.Error().Err(err).Msgf("discord client request error: %v", string(body))
+		a.log.Error().Err(err).Msgf("This was the message sent: %v", m)
 		return errors.New("bad status: %v body: %v", res.StatusCode, string(body))
 	}
 
@@ -172,19 +173,16 @@ func (a *discordSender) buildEmbed(event domain.NotificationEvent, payload domai
 	if len(payload.Tags) > 0 {
 		f := DiscordEmbedsFields{
 			Name:   "Tags",
-			Value:  fmt.Sprintf("```\n%v\n```", strings.Join(payload.Tags, ", ")),
+			Value:  fmt.Sprintf("%v", strings.Join(payload.Tags, ", ")),
 			Inline: false,
 		}
 		fields = append(fields, f)
 	}
 
-	var image []DiscordEmbedsImage
+	var image *EmbedImage
 
 	if payload.Image != "" {
-		i := DiscordEmbedsImage{
-			Url: payload.Image,
-		}
-		image = append(image, i)
+		image = &EmbedImage{payload.Image}
 	}
 
 	embed := DiscordEmbeds{
